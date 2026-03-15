@@ -8,18 +8,23 @@
 ---
 
 ## 💎 1. Pourquoi automatiser ? (10 min)
-*Note : Discussion rapide ou lecture.*
-L'automatisation permet de supprimer les tâches répétitives à faible valeur ajoutée (saisie de données, transferts d'emails, surveillance de prix). 
-**n8n** se distingue par :
-- Son approche **Self-hosted** (protection des données).
-- Sa flexibilité **Low-code** (nœuds visuels + JavaScript).
+Aujourd'hui, on utilise tous des dizaines d'outils : Gmail, Drive, Instagram, Discord, GitHub... Le souci, c'est que ces applications ne communiquent pas entre elles. Résultat : on passe un temps fou à faire du "copier-coller" manuel, à déplacer des fichiers ou à remplir des tableaux. C'est lent, c'est ennuyeux et c'est une perte de temps.
+n8n est un outil qui permet de faire "communiquer" vos applications entre elles à travers des workflows.
 
+L'automatisation permet de supprimer les tâches répétitives à faible valeur ajoutée (saisie de données, transferts d'emails, surveillance de prix). 
+
+Il existe plusieurs outils d'automatisations, tels que Zapier ou Make, cependant, n8n se distingue par plusieurs critères :
+- Le concept "Fair-Code" : n8n est auto-hébergeable (pas besoin de passer forcement par le cloud pour l'utiliser). Cela implique qu'il est possible de l'installer sur vos propres serveurs si vous en avez, ce qui peut réduire les coûts, et cela implique aussi qu'en se faisant, vous gardez un contrôle sur vos données.
+- Le "Low-Code": Dans Zapier ou Make, on peut créer des workflows, mais on ne peut pas insérer des scripts, ce qui réduit le nombre de possibilités d'utilisation. Dans n8n, on peut injecter des scripts JavaScript ou Python pour plus de flexibilité.
+
+# TODO : rédiger
+Automatiser une tâche de 10 minutes par jour fait gagner 60 heures par an.
 ---
 
-## 🛠 2. Installation avec Docker (20 min)
+## 🛠 2. Installation de n8n en self-host avec Docker (20 min)
 
 ### Prérequis
-Assurez-vous que Docker Desktop est lancé sur votre machine.
+Avoir docker sur sa machine
 
 ### Lancement de l'instance
 Ouvrez un terminal et collez la commande suivante :
@@ -42,30 +47,3 @@ Une fois le conteneur démarré, accédez à l'interface sur : `http://localhost
 
 ---
 
-## 🚀 4. Exercice : Créer une veille Bitcoin -> Discord (40 min)
-
-### Étape 1 : Le déclencheur
-Ajoutez un nœud **Schedule Trigger**...
-
-### Étape 2 : L'appel API
-Ajoutez un nœud **HTTP Request**. 
-- **URL :** `https://api.coindesk.com/v1/bpi/currentprice.json`
-- **Méthode :** GET
-
-### Étape 3 : La condition
-Ajoutez un nœud **IF**. Comparez le prix actuel à un seuil de $60,000.
-
-### Étape 4 : La notification
-Utilisez le nœud **Discord** (via Webhook) pour envoyer le message en cas de succès.
-
----
-
-## 🆘 5. Dépannage (Troubleshooting)
-- **Erreur de port :** Si le port 5678 est déjà pris, changez `-p 5678:5678` en `-p 8080:5678`.
-- **Docker Permission :** Sur Linux, n'oubliez pas le `sudo`.
-- **JSON non défini :** Vérifiez que vous avez bien exécuté le nœud précédent pour avoir des données de test.
-
----
-
-## ✅ Validation
-Pour valider le TP, exportez votre workflow au format JSON et soumettez-le.
