@@ -1,0 +1,40 @@
+services:
+  traefik:
+    image: "traefik:v3.0" # Best to specify a version
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      # Removed the HTTPS redirection and ACME resolvers for local dev
+    ports:
+      - "80:80"
+      - "8080:8080" # Traefik Dashboard (since insecure=true)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    # No need to expose 5678 to the host; Traefik handles the entry via port 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`localhost`)"
+      - "traefik.http.routers.n8n.entrypoints=web"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http        # Changed to http for local dev
+      - WEBHOOK_URL=http://localhost/
+      - NODE_ENV=development     # production often forces HTTPS checks
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - TZ=${GENERIC_TIMEZONE}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./local-files:/files
+
+volumes:
+  n8n_data:
