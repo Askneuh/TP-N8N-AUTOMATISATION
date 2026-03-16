@@ -34,6 +34,21 @@ Pour ce premier exemple, sélectionner le noeud Edit Field (vous pouvez le taper
 
 L'objectif de cet exercice est de créer un workflow qui récupère votre CV ainsi qu'une offre de stage/d'emploi, et qui vous rédige une lettre de motivation personnalisée. Les instructions seront moins précises que pour l'exemple de découverte, mais n'hésitez pas à nous appeler si vous avez la moindre question. Le code du workflow complet est aussi disponible sur github, sous format json, vous pouvez le télécharger et l'importer dans n8n si besoin.
 
-La première étape consiste à récupérer votre CV et votre offre d'emploi. Cela peut se faire dans la trigger node. Ajoutez la trigger node n8n form à votre canva, et ajoutez deux form elements, un de type text, et un de type file. Ces éléments serviront pour récupérer respectivement l'offre d'emploi sous forme de texte, et le CV en pdf # ATTENTION JE CROIS QUE SI ON MET PAS EN PDF C BIZARRE. Pour l'élément CV, rajoutez l'attribut Accepted file, et rentrez .pdf, et nommez le label significativement. Vous pouvez aussi ajouter l'attribut required field.
+La première étape consiste à récupérer votre CV et votre offre d'emploi. Cela peut se faire dans la trigger node. Ajoutez la trigger node n8n form à votre canva, et ajoutez deux form elements, un de type text, et un de type file. Ces éléments serviront pour récupérer respectivement l'offre d'emploi sous forme de texte, et le CV en pdf. Pour l'élément CV, rajoutez l'attribut Accepted file, et rentrez .pdf, et nommez le label significativement. Vous pouvez aussi ajouter l'attribut required field.
 
 Ensuite, nous voulons extraire les informations de votre CV, en effet, l'agent IA que nous utiliserons par la suite ne peut pas directement lire le pdf. Pour cela ajoutez la node Extract from File. Sélectionnez Extract From PDF, dans le champ input, glissez l'input du PDF. Ce noeud convertira le contenu du pdf en texte pour que l'agent puisse l'utiliser.
+
+Ok, on va maintenant ajouter notre agent IA. Ajoutez un nouveau noeud et sélectionnez AI -> AI Agent. Il vous faudra ajouter un modèle à cet agent, cliquez sur le + la ou il y a écrit chat model, et choisissez le modèle que vous voulez, il vous faudra créer un credentials et rentrer une API Keys.
+
+Une fois cela fait, vous pouvez rentrer le prompt, en voici un exemple que vous n'êtes pas obligé de suivre, car il peut être amélioré, cependant, pour notre exemple, cela peut suffire : 
+```
+Voici le contenu de mon CV :
+{{ $json.text }}
+
+Et voici une offre d'emploi : {{ $('Upload your file here').item.json.offer }}
+
+Je veux que tu me rédige une lettre de motivation adaptée à cette offre en utilisant ce qu'il y a sur mon CV, la lattre de motivation doit montrer mon interet pour le poste, pour la boite
+```
+
+Remplacez les balises par les bons noms de vos variables, si les noms sont corrects, ils doivent être affichés en vert.
+
