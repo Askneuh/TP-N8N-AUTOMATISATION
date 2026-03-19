@@ -1,0 +1,43 @@
+services:
+  traefik:
+    image: "traefik:v3.0"
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443" # 1. Added HTTPS entrypoint
+      - "--providers.file.directory=/etc/traefik/dynamic" # 2. Tell Traefik to look for cert configs
+    ports:
+      - "80:80"
+      - "443:443"   # 3. Open port 443
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./cert:/etc/traefik/certs:ro # Mount your certs here
+      - ./traefik_dynamic.yaml:/etc/traefik/dynamic/traefik_dynamic.yaml:ro # Cert config file
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`localhost`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure" # Use the secure entrypoint
+      - "traefik.http.routers.n8n.tls=true"             # Enable TLS for this router
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://localhost/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - TZ=${GENERIC_TIMEZONE}
+      # Note: n8n itself doesn't need the TLS env vars if Traefik handles the SSL
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./local-files:/files
+
+volumes:
+  n8n_data:

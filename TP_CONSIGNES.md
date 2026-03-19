@@ -18,6 +18,9 @@ Il existe plusieurs outils d'automatisations, tels que Zapier ou Make, cependant
 - **Le "Low-Code"** : Dans Zapier ou Make, on peut créer des workflows, mais on ne peut pas insérer des scripts, ce qui réduit le nombre de possibilités d'utilisation. Dans n8n, on peut injecter des scripts JavaScript ou Python pour plus de flexibilité.
 
 
+## ⚙️ 2. Installation et Déploiement (20 min)
+Suivez les instructions spécifiques du fichier **[INSTALLATION_GUIDE.md](./INSTALLATION_GUIDE.md)** pour déployer l'outil sur votre machine.
+
 ## 🔍 3. Découverte de l'interface (15 min)
 
 Une fois que vous arrivez sur l'interface, vous tombez sur la page qui répertorie tout vos workflows, si vous êtes vraiment nouveaux sur n8n, vous n'aurez encore aucun workflow.
@@ -106,7 +109,7 @@ Ok, on va maintenant ajouter notre agent IA.
 
 * Ajoutez un nouveau noeud et sélectionnez **AI -> AI Agent**.
 * Il vous faudra ajouter un modèle à cet agent : cliquez sur le **+** là où il y a écrit **chat model**.
-* Choisissez le modèle que vous voulez, créez un credential et rentrez une API Key.
+* Choisissez un modèle gratuit et rapide d'accès (ex: **Google Gemini** ou **Groq**). Créez ensuite une clé d'API (pour Gemini : [aistudio.google.com](https://aistudio.google.com/app/apikey)) et ajoutez-la en *credential*.
 
 ### 4. Rédaction du Prompt
 Une fois cela fait, vous pouvez rentrer le prompt. Voici un exemple que vous n'êtes pas obligé de suivre (il peut être amélioré), mais pour notre exemple, cela peut suffire :
@@ -120,4 +123,38 @@ Une fois cela fait, vous pouvez rentrer le prompt. Voici un exemple que vous n'�
 > Je veux que tu me rédige une lettre de motivation adaptée à cette offre en utilisant ce qu'il y a sur mon CV, la lettre de motivation doit montrer mon intérêt pour le poste et pour la boite.
 
 ⚠️ **Note :** Remplacez les balises par les bons noms de vos variables. Si les noms sont corrects, ils doivent être affichés en vert dans l'interface n8n.
+
+
+### 5. Insertion dans Google Docs (Exercice Avancé)
+Pour clôturer ce TP, nous allons insérer automatiquement la lettre générée par l'IA dans un fichier Google Docs. Google imposant des normes de sécurité strictes, cette étape demande de paramétrer rigoureusement un **Compte de Service** (Service Account).
+
+#### A. Création du Compte de Service Google
+1. Accédez à la [Google Cloud Console](https://console.cloud.google.com/) et connectez-vous avec un compte Google.
+2. Cliquez en haut à gauche pour **Créer un projet** (donnez-lui le nom de votre choix).
+3. Dans la barre de recherche en haut, tapez `Google Docs API` et cliquez sur **Activer**. (Faites de même pour la `Google Drive API` pour éviter tout souci de droits lors du partage).
+4. Ouvrez le menu latéral (🍔) > **API et services** > **Identifiants**.
+5. Cliquez sur **+ CRÉER DES IDENTIFIANTS** et sélectionnez **Compte de service**.
+6. Nommez le compte (ex: `n8n-bot`), cliquez sur *"Créer et continuer"*, puis sur *"OK"*.
+7. Dans la liste des Comptes de Service en bas de page, copiez **l'adresse e-mail** de ce bot algorithmique (elle ressemble à `n8n-bot@...gserviceaccount.com`).
+8. Cliquez sur ce compte pour l'ouvrir, allez dans l'onglet **CLÉS**, puis **AJOUTER UNE CLÉ** > **Créer une clé**.
+9. Sélectionnez le format **JSON** et cliquez sur **Créer**. Un fichier `json` contenant vos accès va se télécharger sur votre ordinateur. Gardez-le précieusement ouvrez-le avec un éditeur de code, vous en aurez besoin !
+
+#### B. Autorisation sur le Document
+1. Ouvrez votre **Google Drive** personnel et créez un nouveau document vierge *Google Docs*.
+2. Cliquez sur le bouton bleu **Partager** en haut à droite.
+3. Collez **l'adresse e-mail** du Compte de Service copiée à l'étape A.7 et octroyez-lui le rôle **Éditeur**. *Sans ça, n8n sera incapable de modifier le document !*
+4. **Important** : Gardez l'URL de votre document Google Docs sous la main pour l'exécution du test.
+
+#### C. Configuration côté n8n
+1. Juste après votre premier noeud **AI Agent**, utilisez un nouveau noeud **Edit Fields (Set)** pour sauvegarder la lettre générée sous le nom `reponse`.
+2. L'API Google Docs n'accepte pas nativement le formatage Markdown généré systématiquement par les IA, il a besoin de texte brut. La meilleure solution est d'ajouter un **deuxième Agent IA** (formatteur), lié à un noeud **Structured Output Parser**. Donnez-lui pour instruction de séparer le texte précédent (votre `reponse`) en un objet JSON rigoureux qui partitionne un *"objet"* (le titre) et le *"contenu"*.
+3. Enfin, ajoutez le noeud final **Google Docs** à votre Canva et configurez-le :
+   - **Credential** : Créez un nouveau `"Google Docs API"`, sélectionnez l'authentification **Service Account** et copiez-collez l'intégralité du texte de la clé JSON téléchargée à l'étape A.9.
+   - **Operation** : `Update`. En *Document URL*, insérez dynamiquement l'URL de votre GDocs récupérée dans le point B ou depuis votre déclencheur Form Trigger.
+   - **Actions** : Ajoutez des champs *Insert* pour y glisser dynamiquement (grâce aux nodes en vert) les variables de votre deuxième IA (soit l'objet, puis à la ligne le contenu).
+
+### 6. Test du Workflow complet
+* Cliquez sur le bouton **Test Workflow** au bas de n8n.
+* Ouvrez l'URL de test de votre formulaire et remplissez l'offre d'emploi, uploadez un CV PDF, et **ajoutez bien l'URL de votre Google Docs vierge**.
+* Lancez l'automatisation depuis le web-formulaire, retournez sur n8n, et suivez en direct la magie s'opérer dans votre document Google !
 

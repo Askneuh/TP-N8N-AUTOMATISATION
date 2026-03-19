@@ -1,0 +1,284 @@
+{
+  "name": "Bonus : Générateur Lettre Multi-Langues",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Voici le contenu de mon CV : \n{{ $json.text }}\n\nEt voici une offre d'emploi : {{ $('Upload your file here').item.json.offer }}\n\nJe veux que tu me rédige une lettre de motivation adaptée à cette offre en utilisant ce qu'il y a sur mon CV, la lattre de motivation doit montrer mon interet pour le poste, pour la boite",
+        "options": {
+          "systemMessage": "=You are given the content of a pdf, your role is to resume what is inside this pdf, here is the content :  SÉBASTIEN PINTA\n4th YEAR ENGINEERING STUDENT IN DATA SCIENCE, MANAGEMENT AND\nSOFTWARE ARCHITECTURE LOOKING FOR A 4-MONTH INTERNSHIP\nSTARTING IN APRIL 2026\n\nCONTACT\n+33 7 81 63 95 91\nsebastien.pinta@etu.umontpellier.fr\nLes Matelles, France\n\nSOFT SKILLS\nHardworking\nAutonomous\nTeamwork\nCurious\nDisciplined\nEffective Communication\nCritical Thinking\nPROGRAMMING LANGUAGES\nPython, Java, Swift, C,\nTypescript, Javascript\nFRAMEWORKS AND LIBRARIES\nDenoJS, Angular, Material UI,\nThreeJS\n\nFrench (Native Speaker)\nEnglish (Advanced)\nLANGUAGES\n\nPROJECT EXPERIENCE\n\nWORK EXPERIENCE\nEDUCATION\n3rd and 4th years of a 5-year engineering qualification in Data Science,\nManagement and Software Architecture - equivalent to an M.Eng.\nExpected graduation June : 2027\nPolytech Montpellier, France, 2024- today\n2 years of preparatory classes leading to a place\nin one of Polytech’s highly selective engineering schools\nPolytech Montpellier, France, 2022- 2024\nHigh school Diploma with specializations in Mathematics and\nComputer Science passed with honors - equivalent to CGE ‘A’\nLycée Jean Jaurès, Saint-Clément-De-Rivière, France, 2022\n\nClient/Server application in C 2025\n\nWeb Application 2025\n\nRecycling game 2024\nDeveloped a client/server application in C that allows user connected\nto the same network to share messages and file through different\nchannels and in private messages, using UDP and TCP protocols, and\nmutex to handle critical sections.\n\nDeveloped a small in real time multiplayer game as a full-stack web\napplication using a small database, web sockets, Json Web Token\nand ThreeJS library. Features include a login/register socket, a user\nsession management, an admin page, and a game page.\n\nDeveloped a game in python using hand detection with opencv\nlibrary on the theme of recycling.\n\nDATABASES\nSQL, NoSQL, SQLite, MySQL\n\nREFERENCES\n\nLogistical assistant at CIRAD (French agricultural\nresearch and cooperation organization)\nMontferrier-Sur-Lez, France\nAssisted the logistical team in their daily tasks\n\n2023\n\nReferences will be provided\nupon request"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "c5c272b8-00b9-4efd-bcb8-1e2625dc0e93",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        336,
+        400
+      ],
+      "id": "3a97f2e7-6afc-4437-bd64-af2e8716d5e4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "B2KTKxU8h1N4QhqX",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        0
+      ],
+      "id": "1ef95270-3813-4d63-95c1-11bb21734ea3",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "formTitle": "Upload your CV",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "data",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "offer",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Google docs url"
+            },
+            {
+              "fieldType": "html",
+              "elementName": "notice",
+              "html": "<!-- Your custom HTML here --->\n<p>\n  N'oubliez pas de partager votre documents avec le compte de service google\n</p>\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7fed5581-18ea-4358-a1d9-451080aa8d63",
+      "name": "Upload your file here",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        176,
+        0
+      ],
+      "webhookId": "d1671c93-3658-4efa-8da9-71b5a04a492b",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4544dfc8-85cb-4fb0-be0a-53e2658c7d8b",
+              "name": "reponse",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        0
+      ],
+      "id": "a7a15423-e5c6-40b4-a1af-f9cbf0845cea",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Avec cette lettre de motivation: \n{{ $json.reponse }}\n\nFormatte-la pour qu'elle puisse être insérée dans Google Docs en texte brut, puis TRADUIS cette lettre de motivation en Anglais et en Espagnol.\nSépare dans le JSON les objets et les contenus des lettres pour chaque langue : 'fr', 'en', et 'es'.\nNE RAJOUTE PAS DE TEXTE COMPLEMENTAIRE.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "ea83892e-e820-4668-8f97-b4e72ad60601",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"fr\": {\n    \"objet\": \"String\",\n    \"contenu\": \"String\"\n  },\n  \"en\": {\n    \"objet\": \"String\",\n    \"contenu\": \"String\"\n  },\n  \"es\": {\n    \"objet\": \"String\",\n    \"contenu\": \"String\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1264,
+        288
+      ],
+      "id": "0dc5a0dc-8a4e-49d0-843c-cb7ea833d06b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentURL": "={{ $('Upload your file here').item.json['Google docs url'] }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $json.output.fr.objet }}"
+            },
+            {
+              "action": "insert",
+              "text": "=\n{{ $json.output.fr.contenu }}\n\n\n======================================\n\n\n"
+            },
+            {
+              "action": "insert",
+              "text": "={{ $json.output.en.objet }}"
+            },
+            {
+              "action": "insert",
+              "text": "=\n{{ $json.output.en.contenu }}\n\n\n======================================\n\n\n"
+            },
+            {
+              "action": "insert",
+              "text": "={{ $json.output.es.objet }}"
+            },
+            {
+              "action": "insert",
+              "text": "=\n{{ $json.output.es.contenu }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "49d880e3-cd9f-4ff9-b60b-3dbd6a5e10b1",
+      "name": "Update a document",
+      "credentials": {
+        "googleApi": {
+          "id": "73FybLa5uNVTkH7M",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload your file here": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
