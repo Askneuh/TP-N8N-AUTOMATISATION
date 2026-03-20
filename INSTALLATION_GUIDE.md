@@ -6,10 +6,6 @@
     1. [Docker](#avec-docker)
     2. [Docker Compose](#avec-docker-compose)
 
-C'est une excellente idée. Ajouter une couche de sécurité avec SSL est une bonne pratique, même en local, pour éviter les alertes de sécurité des navigateurs.
-
-Voici la section à insérer au début de ton guide, juste avant les prérequis. J'ai respecté ton style de mise en forme et utilisé **winget** comme demandé.
-
 ---
 
 ## 0. Génération de clés SSL (Optionnel)
